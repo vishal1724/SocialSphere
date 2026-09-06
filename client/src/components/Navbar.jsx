@@ -1,4 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth.js";
 
 const navStyle = {
   background: "#fff",
@@ -27,6 +28,13 @@ const linkStyle = (active) => ({
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <nav style={navStyle}>
@@ -37,10 +45,20 @@ export default function Navbar() {
 
         <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
           <Link to="/" style={linkStyle(pathname === "/")}>Home</Link>
-          <Link to="/create" style={linkStyle(pathname === "/create")}>Create</Link>
-          <Link to="/profile" style={linkStyle(pathname === "/profile")}>Profile</Link>
-          <Link to="/login" style={{ ...linkStyle(pathname === "/login"), border: "1px solid #e2e8f0" }}>Login</Link>
-          <Link to="/register" style={{ background: "#2563eb", color: "#fff", padding: "0.5rem 1rem", borderRadius: "8px", fontWeight: 600 }}>Sign up</Link>
+          {user ? (
+            <>
+              <Link to="/create" style={linkStyle(pathname === "/create")}>Create</Link>
+              <Link to="/profile" style={linkStyle(pathname === "/profile")}>{user.username}</Link>
+              <button onClick={handleLogout} style={{ background: "#f1f5f9", border: "1px solid #e2e8f0", padding: "0.45rem 0.9rem", borderRadius: "8px", fontWeight: 600, color: "#334155" }}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" style={{ ...linkStyle(pathname === "/login"), border: "1px solid #e2e8f0" }}>Login</Link>
+              <Link to="/register" style={{ background: "#2563eb", color: "#fff", padding: "0.5rem 1rem", borderRadius: "8px", fontWeight: 600 }}>Sign up</Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

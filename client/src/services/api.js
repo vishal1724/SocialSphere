@@ -12,4 +12,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Handle 401 - auto logout and redirect to login
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem("token");
+      // avoid redirect loop if already on login
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(err);
+  }
+);
+
 export default api;

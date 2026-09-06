@@ -1,14 +1,42 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
+import { loginUser, registerUser, getMe } from "../services/authApi.js";
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Placeholder functions — will call authApi later
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    getMe()
+      .then((res) => setUser(res.data.user))
+      .catch(() => {
+        localStorage.removeItem("token");
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   const login = async (credentials) => {
-    console.log("login placeholder", credentials);
+    setError(null);
+    const { data } = await loginUser(credentials);
+    localStorage.setItem("token", data.token);
+    setUser(data.user);
+    return data;
+  };
+
+  const register = async (payload) => {
+    setError(null);
+    const { data } = await registerUser(payload);
+    localStorage.setItem("token", data.token);
+    setUser(data.user);
+    return data;
   };
 
   const logout = () => {
@@ -17,7 +45,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, register, logout, loading, error, setError }}>
       {children}
     </AuthContext.Provider>
   );

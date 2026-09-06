@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { errorHandler } from "./middleware/error.middleware.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -22,9 +23,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", uptime: process.uptime() });
 });
 
-// Placeholder: API routes will be added later
-// import authRoutes from "./routes/auth.routes.js";
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 // 404 handler - must be after all routes
 app.use((req, res) => {
